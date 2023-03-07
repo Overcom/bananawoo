@@ -28,13 +28,13 @@ if (empty($lista_keys)) {
 if (isset($_POST['submit'])) {
     $nombre_api = sanitize_file_name($_POST['name']);
     $api_key = sanitize_key(ucfirst($_POST['api_key']));
-    $consumer_key =sanitize_key($_POST['consumer_key']);
+    //$consumer_key =sanitize_key($_POST['consumer_key']);
     $permiso = sanitize_file_name($_POST['permiso']);
-    $descripcion =sanitize_textarea_field($_POST['descripcion']);
+    $description =sanitize_textarea_field($_POST['description']);
 
     $str = "INSERT INTO wp_bn_keys(`user_id`,`name_api`,`permissions`,
     `description`,`api_key`,`consumer_key`)VALUES('" . $id_user . "','" . $nombre_api . "','" . $permiso . "',
-    '" . $descripcion . "','" . $api_key . "','" . $consumer_key . "')";
+    '" . $description . "','" . $api_key . "','" . $consumer_key . "')";
 
     $conex = $wpdb->get_results($str, ARRAY_A);
     //echo  print_r($conex); exit();
@@ -100,9 +100,8 @@ if (isset($_POST['submit'])) {
                             <th>#</th>
                             <th>Usuario</th>
                             <th>Nombre API</th>
-                            <th>Clave API </th>
-                            <th>Consumer key</th>
-                            <th>descripción</th>
+                            <th>Permisos</th>
+                            <th>Descripción</th>
                             <th>Acciones</th>
                         </thead>
                         <tbody id="the-list">
@@ -122,9 +121,8 @@ if (isset($_POST['submit'])) {
                                     <td><?php echo esc_html($ls) ?></td>
                                     <td><?php echo  esc_html($user_name)?></td>
                                     <td><?php echo  esc_html($name_api)?></td>
-                                    <td><?php echo  esc_html($api_key)?></td>
-                                    <td><?php echo  esc_html($consumer_key)?></td>
                                     <td><?php echo  esc_html($permiso)?></td>
+                                    <td><?php echo  esc_html($description)?></td>
                                     <td>
                                         <!-- //?REVISAR BOTON DE BORRAR -->
                                       <input data-id=idec<?php echo esc_html($id_key)?> type='button' class='page-title-action' value='Borrar'>
@@ -147,29 +145,29 @@ if (isset($_POST['submit'])) {
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <div class="form-group">
                                                     <label for="name">Nombre API</label>
                                                     <input class="form-control" id="name" name="name" type="text">
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <!-- <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="api_key">Consumer key</label>
                                                     <input class="form-control" id="consumer_key" type="text" name="consumer_key">
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <label for="secret">API Key</label>
                                                 <input class="form-control" id="secret" name="api_key" type="text">
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-12">
                                                 <label for="permisos">Permisos</label>
-                                                <select name="permiso" id="permisos" class="form-control">
+                                                <select name="permiso" id="permisos" class="form-select" aria-label="Default select example">
                                                     <option value="w">Escritura</option>
                                                     <option value="r">Lectura</option>
                                                     <option value="r/w">Escritura/Lectura</option>
@@ -179,7 +177,7 @@ if (isset($_POST['submit'])) {
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <label for="des">Descripción</label>
-                                                <textarea class="form-control" style="resize: none;" name="descripcion" id="des" cols="10"></textarea>
+                                                <textarea class="form-control" style="resize: none;" name="description" id="des" cols="10"></textarea>
                                             </div>
                                         </div>
                                     </div>
