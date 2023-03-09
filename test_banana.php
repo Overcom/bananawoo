@@ -13,36 +13,48 @@ global $wpdb;
  * License: GPL2
  */
 
+function tokenBanana()
+{
+    global $wpdb;
+    $sql = "SELECT * FROM wp_bn_keys  LIMIT 1";
+    $res = $wpdb->get_results($sql, ARRAY_A);
+
+    // $tokenBanana = null;
+    foreach ($res as $key => $value) {
+        //var_dump($value);
+        return $value['api_key'];
+    }
+
+    // var_dump($tokenBanana);
+}
+
+function tokenWoo()
+{
+    # code...
+}
+
+
+
+
 // Variables peticion  Banana API ''
 $urlBanana = 'https://server.bananaerp.com/api/access/products/';
 $method = 'GET';
-
+$tokenBanana = tokenBanana();
+//var_dump($tokenBanana);
 // var_dump($res[0]); exit();
 
+$tokenWoo = null;
 
 /**
- * Api res Banana WOO 
+ * autenticación de banana
  * 
  * @param string $url Url de peticion
  * @param string $token token de seguridad
  * @param string $method  get,post,pup etc
  * @return object
  */
-function apiBananaWoo($urlBanana, $method)
+function autenticacion($urlBanana, $tokenBanana, $method, $tokenWoo)
 {
-    global $wpdb;
-
-    $sql = "SELECT * FROM wp_bn_keys LIMIT 1";
-    $res = $wpdb->get_results($sql, ARRAY_A);
-
-    // $tokenBanana = null;
-    foreach ($res as $key => $value) {
-        var_dump($value);
-        $tokenBanana = $value['api_key'];
-    }
-
-    // var_dump($tokenBanana);
-
     $opciones = array(
         'http' => array(
             'header' =>  'token: ' . $tokenBanana,
@@ -55,14 +67,15 @@ function apiBananaWoo($urlBanana, $method)
     $res = file_get_contents($urlBanana, false, $contexto);
 
     if ($res === false) {
-        echo "Error en la peticion ";
-        exit;
+        echo "Error en la peticion";
     } else {
         $object = json_decode($res)->products;
-        var_dump($object);
+        return $object;
     }
 }
-apiBananaWoo($urlBanana, $method);
+
+
+autenticacion($urlBanana, $tokenBanana, $method, $tokenWoo);
 
 
 function botonActivar()
@@ -131,47 +144,57 @@ function menuBanana()
 
 }
 
-//llamar Boostrap
+//LLAMADA DE ARCHIVOS
 
-function callBootstrapJs($hook)
+/**
+ * LLamar a bostrap js
+ *
+ * 
+ */
+function callBootstrapJs()
 {
-
-    //echo "<script>console.log('$hook')</script>";
-    // if ($hook != 'banana/admin/rpt_llaves.php') {
-    //     return;
-    // }
     wp_enqueue_script('bootstrapJs', plugins_url('admin/bootstrap/js/bootstrap.min.js', __FILE__), array('jquery'));
 }
 add_action('admin_enqueue_scripts', 'callBootstrapJs');
 
-function callBootstrapCss($hook)
-{
 
-    //echo "<script>console.log('$hook')</script>";
-    // if ($hook != 'banana/admin/rpt_llaves.php') {
-    //     return;
-    // }
+/**
+ * Llamar a BostrapcSS
+ *
+ * 
+ */
+function callBootstrapCss()
+{
     wp_enqueue_style('callBootstrapCss', plugins_url('admin/bootstrap/css/bootstrap.min.css', __FILE__));
 }
 add_action('admin_enqueue_scripts', 'callBootstrapCss');
 
-//encolar archivos
-function callJs($hook)
-{
 
-    //echo "<script>console.log('$hook')</script>";
-    // if ($hook != 'banana/admin/rpt_llaves.php') {
-    //     return;
-    // }
+/**
+ * Llamar estilos css
+ *
+ * 
+ */
+function callStyles()
+{
+    wp_enqueue_style('callStyles', plugins_url('admin/bootstrap/styles/index.css', __FILE__));
+}
+add_action('admin_enqueue_scripts', 'callStyles');
+
+/**
+ * llamar Scrips js
+ */
+function callJs()
+{
     wp_enqueue_script('mainJs', plugins_url('admin/bootstrap/scripts/main.js', __FILE__), array('jquery'));
 }
 add_action('admin_enqueue_scripts', 'callJs');
 
-// function callFontAwesome(){
-//     wp_enqueue_style('callFontAwesome',plugins_url('admin/font-awesome/css/font-awesome.min.css',__FILE__));
-// }
-// add_action('admin_enqueue_scripts','callFontAwesome');
-
+/**
+ * llamar a font Awesome 
+ *
+ * 
+ */
 function callFontAwesomeCnd()
 {
     wp_enqueue_style('load-fa', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css');

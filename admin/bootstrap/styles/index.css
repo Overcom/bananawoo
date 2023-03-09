@@ -1,0 +1,27 @@
+.box-check{
+    background-color: #fafcff;
+    border-radius: 5px;
+    box-shadow: 1px 3px 6px #24242452;
+    padding:8px 0;
+    margin:8px 0;
+    transition: 0.3s;
+    
+}
+.box-check:hover{
+    background-color:#2088ff;
+    color:#fafcff;
+    transition: 0.3s;
+}
+
+.box-check:active{
+    background-color:#2088ff;
+    color:#fafcff;
+    transition: 0.3s;
+}
+.check{
+
+}
+.word-check{
+    font-family:arial; 
+    font-size: 100px;
+}
