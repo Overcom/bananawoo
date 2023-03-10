@@ -30,7 +30,15 @@ function tokenBanana()
 
 function tokenWoo()
 {
-    # code...
+    global $wpdb;
+    $sql = "SELECT * FROM wp_bn_keys  LIMIT 1";
+    $res = $wpdb->get_results($sql, ARRAY_A);
+
+    // $tokenBanana = null;
+    foreach ($res as $key => $value) {
+        //var_dump($value);
+        return $value['api_key'];
+    }
 }
 
 
@@ -88,9 +96,11 @@ function botonActivar()
             `name_api` varchar(50),
             `permissions` varchar(100) NOT NULL,
             `description` varchar(100) NOT NULL,
-            `api_key` varchar(500) NOT NULL,
+            `TokenBn` varchar(500) NOT NULL,
             `consumer_key` varchar(500) NOT NULL,
-            PRIMARY KEY (`id_key`))";
+            `consumer_secret`  varchar(500) NOT NULL,
+            PRIMARY KEY (`id_key`)
+        )";
 
     $wpdb->query($sql);
     //echo $sql; exit();

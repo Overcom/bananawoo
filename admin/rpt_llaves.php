@@ -33,14 +33,15 @@ if (isset($_POST['button'])) {
 
 if (isset($_POST['submit'])) {
     $nombre_api = sanitize_file_name(ucfirst($_POST['name']));
-    $api_key =  $_POST['api_key'];
-    //$consumer_key =sanitize_key($_POST['consumer_key']);
+    $TokenBn =  $_POST['TokenBn'];
+    $consumer_secret =  $_POST['consumer_secret'];
+    $consumer_key = sanitize_key($_POST['consumer_key']);
     $permiso = sanitize_file_name($_POST['permiso']);
     $description = sanitize_textarea_field($_POST['description']);
 
     $str = "INSERT INTO wp_bn_keys(`user_id`,`name_api`,`permissions`,
-    `description`,`api_key`)VALUES('" . $id_user . "','" . $nombre_api . "','" . $permiso . "',
-    '" . $description . "','" . $api_key . "')";
+    `description`,`TokenBn`,`consumer_key`,`consumer_secret`)VALUES('" . $id_user . "','" . $nombre_api . "','" . $permiso . "',
+    '" . $description . "','" . $TokenBn . "','" . $consumer_key . "','" . $consumer_secret . "')";
 
     $conex = $wpdb->get_results($str, ARRAY_A);
     //echo  print_r($str); exit();
@@ -111,7 +112,7 @@ if (isset($_POST['submit'])) {
                     <thead>
                         <th>#</th>
                         <th>Usuario</th>
-                        <th>Nombre API</th>
+                        <th>Nombre Token</th>
                         <th>Permisos</th>
                         <th>Descripción</th>
                         <th>Acciones</th>
@@ -127,7 +128,7 @@ if (isset($_POST['submit'])) {
                             $permiso = $value['permissions'];
                             $description = $value['description'];
                             $consumer_key = $value['consumer_key'];
-                            $api_key = $value['api_key'];
+                            $api_key = $value['TokenBn'];
                         ?>
                             <tr>
                                 <td><?php echo esc_html($ls) ?></td>
@@ -146,6 +147,14 @@ if (isset($_POST['submit'])) {
                         ?>
                     </tbody>
                 </table>
+                <div class="container mt-5">
+                    <div class="alert alert-danger" role="alert">
+                        Fallo al Autenticar
+                    </div>
+                    <div class="alert alert-success" role="alert">
+                        Autenticación exitosa
+                    </div>
+                </div>
                 <!-- Modal -->
                 <div class="modal fade" id="modalNuevo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -156,28 +165,21 @@ if (isset($_POST['submit'])) {
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
+                                    <h4>Datos Banana</h4>
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="name">Nombre API</label>
                                                 <input class="form-control" id="name" name="name" minlength="4" maxlength="20" type="text">
                                             </div>
                                         </div>
-                                        <!-- <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="api_key">Consumer key</label>
-                                                    <input class="form-control" id="consumer_key" type="text" name="consumer_key">
-                                                </div>
-                                            </div> -->
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <label for="secret">API Key</label>
-                                            <input class="form-control" id="secret" name="api_key" type="password">
+                                        <div class="col-md-6">
+                                            <label for="secret">Token Banana</label>
+                                            <input class="form-control" id="secret" name="TokenBn" type="password">
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <label for="permisos">Permisos</label>
                                             <select name="permiso" id="permisos" class="form-select" aria-label="Default select example">
                                                 <option value="w">Escritura</option>
@@ -185,14 +187,24 @@ if (isset($_POST['submit'])) {
                                                 <option value="r/w">Escritura/Lectura</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <label for="des">Descripción</label>
                                             <textarea class="form-control" style="resize: none;" name="description" id="des" cols="10"></textarea>
                                         </div>
                                     </div>
+                                    <h4>Datos Woocommerce</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="secret">Consumer Key</label>
+                                            <input class="form-control" id="consumer_key" name="consumer_key" type="password">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="secret">Consumer secret</label>
+                                            <input class="form-control" id="consumer_secret" name="consumer_secret" type="password">
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                     <input type="submit" name="submit" class="btn btn-primary" value="Guardar">
