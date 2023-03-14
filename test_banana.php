@@ -14,6 +14,31 @@ global $wpdb;
  * Author URI: 
  * License: GPL2
  */
+
+
+//? VARIABLES DE PETICIÓN -------------------------------------------------------------------------- 
+
+$urlBananaProducts = 'https://server.bananaerp.com/api/access/products/';
+$urlBananaCategories= 'https://server.bananaerp.com/api/access/categories';
+
+$method = 'GET';
+$tokenBanana = tokenBanana();
+
+$consumer_key_Woo = tokenWoo()[0];
+$consumer_secret_Woo = tokenWoo()[1];
+// $urlWoo = "http://pruebas.local/wp-json/wc/v3/products/categories?consumer_key=" . $consumer_key_Woo . "&consumer_secret=" . $consumer_secret_Woo . "";
+$urlWoo = "https://pruebas.local/wp-json/wc/v3/products/categories";
+$params = [
+    'consumer_key' => $consumer_key_Woo,
+    'consumer_secret' => $consumer_secret_Woo,
+    'sslverify' => false,
+];
+
+/**
+ * Capturar token banana
+ *
+ * @return objetc
+ */
 function tokenBanana()
 {
     global $wpdb;
@@ -52,22 +77,6 @@ function tokenWoo()
     }
 }
 
-
-
-// Variables petición  Banana API 
-$urlBanana = 'https://server.bananaerp.com/api/access/products/';
-$method = 'GET';
-$tokenBanana = tokenBanana();
-
-$consumer_key_Woo = tokenWoo()[0];
-$consumer_secret_Woo = tokenWoo()[1];
-// $urlWoo = "http://pruebas.local/wp-json/wc/v3/products/categories?consumer_key=" . $consumer_key_Woo . "&consumer_secret=" . $consumer_secret_Woo . "";
-$urlWoo = "https://pruebas.local/wp-json/wc/v3/products/categories";
-$params = [
-    'consumer_key' => $consumer_key_Woo,
-    'consumer_secret' => $consumer_secret_Woo,
-    'sslverify' => false,
-];
 //var_dump($tokenBanana);
 // var_dump($res[0]); exit();
 /* function wp_remote_get($url, $args = array())
@@ -96,14 +105,14 @@ function aunthenticationWoo($urlWoo, $params)
 
 
 /**
- * autenticación de banana
+ * Listar Productos Categorias y listados de 
+ * banana
  * 
  * @param string $url Url de peticion
- * @param string $token token de seguridad
- * @param string $method  get,post,pup etc
+ * @param string $tokenBanana token de seguridad bana
  * @return object
  */
-function productosBanana($urlBanana, $tokenBanana)
+function productosBanana($url, $tokenBanana)
 {
     $params = array(
         'headers' =>  array(
@@ -112,13 +121,14 @@ function productosBanana($urlBanana, $tokenBanana)
         ),
     );
 
-    $response = wp_remote_get($urlBanana, $params);
+    $response = wp_remote_get($url, $params);
 
     $body_https = $response['body'];
     $products = json_decode($body_https);
     
-    return $products->products;
+    return $products;
 }
+
 function activar()
 {
     global $wpdb;
