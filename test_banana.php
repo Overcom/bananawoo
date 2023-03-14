@@ -1,6 +1,8 @@
 <?php
 
+use Automattic\WooCommerce\Admin\API\Products;
 use Composer\Installers\Plugin;
+use Automattic\WooCommerce\Client;
 
 global $wpdb;
 /**
@@ -12,7 +14,6 @@ global $wpdb;
  * Author URI: 
  * License: GPL2
  */
-
 function tokenBanana()
 {
     global $wpdb;
@@ -22,36 +23,77 @@ function tokenBanana()
     // $tokenBanana = null;
     foreach ($res as $key => $value) {
         //var_dump($value);
-        return $value['api_key'];
+        return $value['tokenBn'];
     }
 
     // var_dump($tokenBanana);
 }
 
+
+/**
+ * Capturar Tokens de woocomerce
+ *
+ * @return array [0] consumer_key ,[1] consumer_secret
+ */
 function tokenWoo()
 {
     global $wpdb;
+
+    $tokenWoo = [];
     $sql = "SELECT * FROM wp_bn_keys  LIMIT 1";
     $res = $wpdb->get_results($sql, ARRAY_A);
 
     // $tokenBanana = null;
     foreach ($res as $key => $value) {
         //var_dump($value);
-        return $value['api_key'];
+        $tokenWoo[] =  $value['consumer_key'];
+        $tokenWoo[] =  $value['consumer_secret'];
+        return $tokenWoo;
     }
 }
 
 
 
-
-// Variables peticion  Banana API ''
+// Variables petición  Banana API 
 $urlBanana = 'https://server.bananaerp.com/api/access/products/';
 $method = 'GET';
 $tokenBanana = tokenBanana();
+
+$consumer_key_Woo = tokenWoo()[0];
+$consumer_secret_Woo = tokenWoo()[1];
+// $urlWoo = "http://pruebas.local/wp-json/wc/v3/products/categories?consumer_key=" . $consumer_key_Woo . "&consumer_secret=" . $consumer_secret_Woo . "";
+$urlWoo = "https://pruebas.local/wp-json/wc/v3/products/categories";
+$params = [
+    'consumer_key' => $consumer_key_Woo,
+    'consumer_secret' => $consumer_secret_Woo,
+    'sslverify' => false,
+];
 //var_dump($tokenBanana);
 // var_dump($res[0]); exit();
+/* function wp_remote_get($url, $args = array())
+{
+    $http = _wp_http_get_object();
+    return $http->get($url, $args);
+} */
 
-$tokenWoo = null;
+/**
+ * Metodo para auntenticaren woo
+ * 
+ * @return ;
+ */
+function aunthenticationWoo($urlWoo, $params)
+{
+    $response = wp_remote_get($urlWoo, $params);
+
+    if (is_array($response) && !is_wp_error($response)) {
+        $headers = $response['headers']; // array of http header lines
+        $body    = $response['body']; // use the content
+    } else {
+        var_dump($response);
+    }
+}
+// aunthenticationWoo($urlWoo, $params);
+
 
 /**
  * autenticación de banana
@@ -61,32 +103,23 @@ $tokenWoo = null;
  * @param string $method  get,post,pup etc
  * @return object
  */
-function autenticacion($urlBanana, $tokenBanana, $method, $tokenWoo)
+function productosBanana($urlBanana, $tokenBanana)
 {
-    $opciones = array(
-        'http' => array(
-            'header' =>  'token: ' . $tokenBanana,
-            'method' => $method,
+    $params = array(
+        'headers' =>  array(
+            'token' => $tokenBanana,
+            'organization' => 1,
         ),
     );
 
-    $contexto = stream_context_create($opciones);
+    $response = wp_remote_get($urlBanana, $params);
 
-    $res = file_get_contents($urlBanana, false, $contexto);
-
-    if ($res === false) {
-        echo "Error en la peticion";
-    } else {
-        $object = json_decode($res)->products;
-        return $object;
-    }
+    $body_https = $response['body'];
+    $products = json_decode($body_https);
+    
+    return $products->products;
 }
-
-
-autenticacion($urlBanana, $tokenBanana, $method, $tokenWoo);
-
-
-function botonActivar()
+function activar()
 {
     global $wpdb;
 
@@ -96,7 +129,7 @@ function botonActivar()
             `name_api` varchar(50),
             `permissions` varchar(100) NOT NULL,
             `description` varchar(100) NOT NULL,
-            `TokenBn` varchar(500) NOT NULL,
+            `tokenBn` varchar(500) NOT NULL,
             `consumer_key` varchar(500) NOT NULL,
             `consumer_secret`  varchar(500) NOT NULL,
             PRIMARY KEY (`id_key`)
@@ -112,7 +145,7 @@ function botonDesactivar()
 {
 }
 
-register_activation_hook(__FILE__, 'botonActivar');
+register_activation_hook(__FILE__, 'activar');
 register_deactivation_hook(__FILE__, 'botonDesactivar');
 
 
@@ -124,12 +157,11 @@ function menuBanana()
         'Claves API RES', //cambiar titulo
         'Banana', //titulo menu
         'manage_options', //permisos
-        plugin_dir_path(__FILE__) . 'admin/rpt_llaves.php',
+        plugin_dir_path(__FILE__) . 'admin/index.php',
         null,
         null, //icono
         '8' //position del menu
     );
-
     // add_submenu_page(
     //     'bn_menu_parent',
     //     'Agregar llaves',
