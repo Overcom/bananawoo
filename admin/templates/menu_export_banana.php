@@ -1,7 +1,9 @@
             <?php
 
             set_time_limit(0);
+            //productos banana 
             $products = productosBanana($urlBananaProducts, $tokenBanana);
+            //categorias banana
             $categories = productosBanana($urlBananaCategories, $tokenBanana);
 
             ?>

@@ -1,0 +1,17 @@
+{
+    "name": "banana/woo",
+    "autoload": {
+        "psr-4": {
+            "Banana\\Woo\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "louis",
+            "email": "lsarmiento@overcom.net"
+        }
+    ],
+    "require": {
+        "automattic/woocommerce": "^3.1"
+    }
+}

@@ -4,4 +4,4 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 global $wpdb;
-$wpdb->query("DROP TABLE IF EXISTS wp_bn_keys");
+$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}_bn_keys");

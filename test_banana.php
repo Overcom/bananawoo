@@ -1,8 +1,9 @@
 <?php
 
-use Automattic\WooCommerce\Admin\API\Products;
-use Composer\Installers\Plugin;
+require __DIR__ . '/vendor/autoload.php';
+
 use Automattic\WooCommerce\Client;
+
 
 global $wpdb;
 /**
@@ -18,21 +19,41 @@ global $wpdb;
 
 //? VARIABLES DE PETICIÓN -------------------------------------------------------------------------- 
 
+$host = $_SERVER['HTTP_HOST'];
 $urlBananaProducts = 'https://server.bananaerp.com/api/access/products/';
-$urlBananaCategories= 'https://server.bananaerp.com/api/access/categories';
-
+$urlBananaCategories = 'https://server.bananaerp.com/api/access/categories';
 $method = 'GET';
 $tokenBanana = tokenBanana();
 
-$consumer_key_Woo = tokenWoo()[0];
-$consumer_secret_Woo = tokenWoo()[1];
+$consumer_key_Woo = tokenWoo(0);
+$consumer_secret_Woo = tokenWoo(1);
 // $urlWoo = "http://pruebas.local/wp-json/wc/v3/products/categories?consumer_key=" . $consumer_key_Woo . "&consumer_secret=" . $consumer_secret_Woo . "";
-$urlWoo = "https://pruebas.local/wp-json/wc/v3/products/categories";
-$params = [
-    'consumer_key' => $consumer_key_Woo,
-    'consumer_secret' => $consumer_secret_Woo,
-    'sslverify' => false,
-];
+$urlWoo = "https://" . $host;
+$params = array(
+    'headers' =>  array(
+        'consumer_key' => $consumer_key_Woo,
+        'consumer_secret' => $consumer_secret_Woo,
+    ),
+);
+
+
+function aunthentication($consumer_key_Woo, $consumer_secret_Woo, $urlWoo)
+{
+    $woocommerce = new Client(
+        $urlWoo,
+        $consumer_key_Woo,
+        $consumer_secret_Woo,
+        [
+            'wp_api' => true,
+            'version' => 'wc/v3',
+            'verify_ssl' => false
+        ]
+    );
+
+    return $woocommerce;
+}
+
+$woocommerce = aunthentication($consumer_key_Woo, $consumer_secret_Woo, $urlWoo);
 
 /**
  * Capturar token banana
@@ -42,7 +63,7 @@ $params = [
 function tokenBanana()
 {
     global $wpdb;
-    $sql = "SELECT * FROM wp_bn_keys  LIMIT 1";
+    $sql = "SELECT * FROM {$wpdb->prefix}_bn_keys LIMIT 1";
     $res = $wpdb->get_results($sql, ARRAY_A);
 
     // $tokenBanana = null;
@@ -55,53 +76,47 @@ function tokenBanana()
 }
 
 
-/**
- * Capturar Tokens de woocomerce
+/** 
+ * Capturar tokens wocomerce 
  *
- * @return array [0] consumer_key ,[1] consumer_secret
+ * @param  int $num indice de arreglo
+ * @return Array 0 consumer_key , 1 consumer_secret
  */
-function tokenWoo()
+function tokenWoo($num)
 {
     global $wpdb;
+    $nombreBD = 'local';
+    $tokensWoo = [];
 
-    $tokenWoo = [];
-    $sql = "SELECT * FROM wp_bn_keys  LIMIT 1";
-    $res = $wpdb->get_results($sql, ARRAY_A);
+    $ExistDB="SHOW TABLES FROM '" . $nombreBD . "' LIKE {$wpdb->prefix}_bn_keys";
 
-    // $tokenBanana = null;
-    foreach ($res as $key => $value) {
-        //var_dump($value);
-        $tokenWoo[] =  $value['consumer_key'];
-        $tokenWoo[] =  $value['consumer_secret'];
-        return $tokenWoo;
+    if ($ExistDB == true) {
+
+        $sql = "SELECT * FROM {$wpdb->prefix}_bn_keys  LIMIT 1";
+        $res = $wpdb->get_results($sql, ARRAY_A);
+        foreach ($res as $key => $value) {
+            //var_dump($value);
+            $tokensWoo[] =  $value['consumer_key'];
+            $tokensWoo[] =  $value['consumer_secret'];
+        }
+    }else{
+        $tokensWoo = $num;
     }
-}
 
-//var_dump($tokenBanana);
-// var_dump($res[0]); exit();
-/* function wp_remote_get($url, $args = array())
-{
-    $http = _wp_http_get_object();
-    return $http->get($url, $args);
-} */
+    return $tokensWoo[$num];
+}
 
 /**
  * Metodo para auntenticaren woo
  * 
  * @return ;
  */
-function aunthenticationWoo($urlWoo, $params)
+function categoriesWoo($woocommerce)
 {
-    $response = wp_remote_get($urlWoo, $params);
-
-    if (is_array($response) && !is_wp_error($response)) {
-        $headers = $response['headers']; // array of http header lines
-        $body    = $response['body']; // use the content
-    } else {
-        var_dump($response);
-    }
+    return $woocommerce->get('products/categories');
 }
-// aunthenticationWoo($urlWoo, $params);
+categoriesWoo($woocommerce);
+
 
 
 /**
@@ -125,7 +140,7 @@ function productosBanana($url, $tokenBanana)
 
     $body_https = $response['body'];
     $products = json_decode($body_https);
-    
+
     return $products;
 }
 
@@ -133,7 +148,7 @@ function activar()
 {
     global $wpdb;
 
-    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}bn_keys(
+    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}_bn_keys(
             `id_key` int NOT NULL AUTO_INCREMENT,
             `user_id` int NOT NULL,
             `name_api` varchar(50),
