@@ -1,21 +1,29 @@
- 
+<!DOCTYPE html>
+<html lang="en">
 
-<body>
-    <style>
-        /* .btn-search {
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+<style>
+    /* .btn-search {
             font-size: 120%;
             padding: 0px 10px;
         } */
 
-        /* .box-filter {
+    /* .box-filter {
             display: flex;
             padding: 0px 0px;
         } */
 
-        /* .input-filter {
+    /* .input-filter {
             height: 20px;
         } */
-    </style>
+</style>
+
+<body>
     <div class="container-fluid">
         <div align="center" class="mt-4 mb-2 container">
             <h1>Panel Banana Woo</h1>
@@ -53,8 +61,8 @@
                         </div>
                     </div>
                 </div>
-                        
-                        <?php include('templates/rpt_llaves.php'); ?>
+
+                <?php include('comp-token.php'); ?>
 
                 <!-- AUTENTICAR -->
                 <div class="container mt-5">
@@ -127,17 +135,19 @@
         </div>
         <!-- contenido dos Exportación -->
         <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-            
+
             <div class="container-fluid mt-3">
-                <?php include('templates/menu_export_banana.php');  ?>
+                <?php include('comp-export.php');  ?>
             </div>
 
-        <!-- Contenido tres opciones avanzadas -->
-        <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
-            <h1>Contenido tres opciones avanzadas</h1>
-            .....
+            <!-- Contenido tres opciones avanzadas -->
+            <div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">
+                <h1>Contenido tres opciones avanzadas</h1>
+                .....
+            </div>
         </div>
-    </div>
-    <!-- contenidos -->
+        <!-- contenidos -->
 
 </body>
+
+</html>

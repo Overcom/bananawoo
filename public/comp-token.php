@@ -1,4 +1,3 @@
-
 <?php
 
 global $wpdb;
@@ -8,9 +7,9 @@ $user_name;
 $id_user;
 
 
-$query_admin = "SELECT ID,display_name FROM {$wpdb->prefix}_users";
-$query_tonken = "SELECT * {$wpdb->prefix}_woocommerce_api_keys";
-$query = "SELECT * FROM  {$wpdb->prefix}_bn_keys ";
+$query_admin = "SELECT ID,display_name FROM {$wpdb->prefix}users";
+$query_tonken = "SELECT * {$wpdb->prefix}woocommerce_api_keys";
+$query = "SELECT * FROM  {$wpdb->prefix}bn_keys ";
 
 $lista_keys = $wpdb->get_results($query, ARRAY_A);
 $user_admin = $wpdb->get_results($query_admin, ARRAY_A);
