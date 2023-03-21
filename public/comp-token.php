@@ -46,10 +46,15 @@ if (isset($_POST['submit'])) {
 		`description`,`tokenBn`,`consumer_key`,`consumer_secret`)
 	VALUES('" . $id_user . "','" . $nombre_api . "','" . $permiso . "',
 		'" . $description . "','" . $TokenBn . "','" . $consumer_key . "','" . $consumer_secret . "')";
-
-		$conex = $wpdb->get_results($str, ARRAY_A);
+	$conex = $wpdb->get_results($str, ARRAY_A);
     //echo  $str; exit();
 
+//    $sql = "SELECT  FROM {$wpdb->prefix}bn_keys"
+
+// 	function autenticar($bool)
+// 	{
+// 		return $bool;
+// 	}
     /*
      TODO: $id_user pertenece tabla wp_users
      */

@@ -25,7 +25,7 @@ function activar()
 {
     global $wpdb;
 
-    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}_bn_keys(
+    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}bn_keys(
             `id_key` int NOT NULL AUTO_INCREMENT,
             `user_id` int NOT NULL,
             `name_api` varchar(50),
@@ -86,6 +86,10 @@ function bn_menu()
     );
 }
 
+//?MÉTODOS FOR wooocomerce 
+
+include plugin_dir_path(__FILE__).'admin/functions/products-woo.php';
+
 //?MÉTODOS FOR PROPDUCTOS BANANA
 
 include plugin_dir_path(__FILE__).'admin/functions/products-banana.php';
@@ -98,4 +102,4 @@ include plugin_dir_path(__FILE__).'admin/functions/tokens.php';
 include plugin_dir_path(__FILE__).'src/rutes.php';
 
 
-var_dump( $wpdb->prefix);
+

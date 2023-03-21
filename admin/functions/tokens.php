@@ -35,10 +35,11 @@ $params = array(
 function extractTokenBanana()
 {
     global $wpdb;
-    $sql = "SELECT * FROM {$wpdb->prefix}bn_keys WHERE= id_key ";
-    $res = $wpdb->get_results($sql, ARRAY_A);
-    if ($res > 0) {
-        foreach ($res as $key => $value) {
+    $sql_banana = "SELECT * FROM {$wpdb->prefix}bn_keys limit 1";
+    $res_banana = $wpdb->get_results($sql_banana, ARRAY_A);
+    if ($res_banana > 0) {
+        foreach ($res_banana as $key => $value) {
+            //echo  json_encode( $res_banana); exit;
             return $value['tokenBn'];
         }
     }
@@ -55,7 +56,7 @@ function tokenWoo($num)
 {
     global $wpdb;
     $tokensWoo = [];
-    $sql = "SELECT * FROM {$wpdb->prefix}bn_keys WHERE=id_key";
+    $sql = "SELECT * FROM {$wpdb->prefix}bn_keys limit 1";
     $res = $wpdb->get_results($sql, ARRAY_A);
 
     if ($res > 0 ) {

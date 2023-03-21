@@ -5,7 +5,7 @@
  * banana
  * 
  * @param string $url Url de peticion
- * @param string $tokenBanana token de seguridad bana
+ * @param string $tokenBanana token de seguridad banana
  * @return object
  */
 function productosBanana($url, $tokenBanana)
@@ -23,6 +23,7 @@ function productosBanana($url, $tokenBanana)
     $products = json_decode($body_https);
 
     return $products;
+    //var_dump($params);
 }
 
 
