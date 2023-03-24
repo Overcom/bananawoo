@@ -63,16 +63,27 @@
                 </div>
 
                 <?php include('comp-token.php'); ?>
-
+                <?php
+                 extractToken ($datos);
+                if (validationTokens($datos) == true) {
+                ?>
+                    <div class="container mt-5">
+                        <div class="alert alert-success" role="alert">
+                            Autenticación exitosa
+                        </div>
+                    </div>
+                <?php
+                } else {
+                ?>
+                    <div class="container mt-5">
+                        <div class="alert alert-danger" role="alert">
+                            Fallo al Autenticar vuelva a intentarlo.
+                        </div>
+                    </div>
+                <?php
+                }
+                ?>
                 <!-- AUTENTICAR -->
-                <div class="container mt-5">
-                    <div class="alert alert-danger" role="alert">
-                        Fallo al Autenticar
-                    </div>
-                    <div class="alert alert-success" role="alert">
-                        Autenticación exitosa
-                    </div>
-                </div>
                 <!-- Modal -->
                 <div class="modal fade" id="modalNuevo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">

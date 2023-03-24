@@ -21,25 +21,7 @@ define('BN_DIR', plugin_dir_path(__FILE__));
  *
  * @return array
  */
-function activar()
-{
-    global $wpdb;
-
-    $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}bn_keys(
-            `id_key` int NOT NULL AUTO_INCREMENT,
-            `user_id` int NOT NULL,
-            `name_api` varchar(50),
-            `permissions` varchar(100) NOT NULL,
-            `description` varchar(100) NOT NULL,
-            `tokenBn` varchar(500) NOT NULL,
-            `consumer_key` varchar(500) NOT NULL,
-            `consumer_secret`  varchar(500) NOT NULL,
-            PRIMARY KEY (`id_key`)
-        )";
-
-    // $wpdb->query($sql);
-    //echo $sql; exit();
-
+function activar(){
 }
 
 /**
@@ -47,11 +29,7 @@ function activar()
  *
  * @return  array
  */
-function botonDesactivar()
-{
-    global $wpdb;
-    $sql = "DELETE FROM {$wpdb->prefix}_bn_keys ";
-    $wpdb->query($sql);
+function botonDesactivar(){
 }
 
 register_activation_hook(__FILE__, 'activar');

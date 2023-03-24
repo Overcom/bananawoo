@@ -1,123 +1,138 @@
 <?php
+set_time_limit(0);
 $urlBananaProducts = 'https://server.bananaerp.com/api/access/products/';
 $urlBananaCategories = 'https://server.bananaerp.com/api/access/categories';
-$tokenBanana = extractTokenBanana();
+$tokenBanana =  extractToken($datos)['tk_bn'];
 //productos banana 
 $products = productosBanana($urlBananaProducts, $tokenBanana);
 //categorias banana
 $categories = productosBanana($urlBananaCategories, $tokenBanana);
 //Tokens woo
 
-$consumer_secret_Woo = tokenWoo(1);
-$consumer_key_Woo = tokenWoo(0);
+$consumer_secret_Woo =  extractToken($datos)['cs'];
+$consumer_key_Woo =  extractToken($datos)['ck'];
 
 $urlHost = "https://" . $_SERVER['HTTP_HOST'];
 
 if (isset($_POST['sincronizar'])) {
     $category_woo_id = [];
-    if (isset($_POST['actualizar']) or isset($_POST['crear'])) {
-        set_time_limit(0);
+    if (validationTokens($datos) == true) {
+        if (isset($_POST['actualizar']) or isset($_POST['crear'])) {
 
-        $productsCreates = 0;
-        $productsUpdates = 0;
-        $productExist = 0;
-        $category_woo_id = [];
-        $productNotSku = 0;
-        $woocommerce = aunthenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
-        // $productsBanana = $products->products;
-        
-        foreach ($products->products as $key => $productoBanana) {
-            $actualizado = false;
-            $productWoo = searchProduct($woocommerce, $productoBanana->sku);
+            $productsCreates = 0;
+            $productsUpdates = 0;
+            $productExist = 0;
+            $category_woo_id = [];
+            $productNotSku = 0;
+            $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
+            // $productsBanana = $products->products;
 
-            $data = [
-                'name' => $productoBanana->name,
-                'regular_price' => $productoBanana->sale_price,
-                'stock_quantity' => $productoBanana->stock,
-                'description' => $productoBanana->description,
-                'categories' => $category_woo_id,
-                'sku' => $productoBanana->sku
-            ];
+            foreach ($products->products as $key => $productoBanana) {
+                $actualizado = false;
+                $productWoo = searchProduct($woocommerce, $productoBanana->sku);
 
-            if (count($productWoo) > 0) {
-                $id = $productWoo[0]->id;
-                $sku = $productWoo[0]->sku;
+                $data = [
+                    'name' => $productoBanana->name,
+                    'regular_price' => $productoBanana->sale_price,
+                    'stock_quantity' => $productoBanana->stock,
+                    'description' => $productoBanana->description,
+                    'categories' => $category_woo_id,
+                    'sku' => $productoBanana->sku
+                ];
 
-                if (isset($_POST['actualizar'])) {
-                    $actualizado = true;
-                    updateProductsWoo($woocommerce, $id, $data);
-                    $productsUpdates++;
+                if (count($productWoo) > 0) {
+                    $id = $productWoo[0]->id;
+                    $sku = $productWoo[0]->sku;
+
+                    if (isset($_POST['actualizar'])) {
+                        $actualizado = true;
+                        updateProductsWoo($woocommerce, $id, $data);
+                        $productsUpdates++;
+                    }
+                }
+
+                if (isset($_POST['crear']) && !$actualizado) {
+                    if ($productoBanana->sku == $sku) {
+                        $productExist++;
+                    } else {
+                        createProductWoo($woocommerce, $data);
+                        $productsCreates++;
+                    }
                 }
             }
-
-            if (isset($_POST['crear']) && !$actualizado) {
-                if ($productoBanana->sku == $sku) {
-                    $productExist++;
-                } else {
-                    createProductWoo($woocommerce, $data);
-                    $productsCreates++;
-                }
-            }
+            echo '<div class="alert alert-success" role="alert">
+                        ' . $productsCreates . ' Productos Creados Exitosamente
+                        ' . $productExist . ' Ya existen, ' . $productsUpdates . ' en existencia.
+                      </div>';
         }
-        echo '<div class="alert alert-success" role="alert">
-                    ' . $productsCreates . ' Productos Creados Exitosamente
-                    ' . $productExist . ' Ya existen, ' . $productsUpdates . ' en existencia.
-                  </div>';
+    } else {
+        echo '<div class="alert alert-warning" role="alert">
+                Tus datos no están autenticados.
+                      </div>';
     }
-
-
-
-    // if (isset($_POST['crear'])) {
-
-    //     foreach ($productsBanana as $key => $productoBanana) {
-    //         $productWoo = searchProduct($woocommerce, $productoBanana->sku);
-    //         if (count($productWoo) > 0) {
-    //             $productExist++;
-    //         } else {
-
-    //             createProductWoo($woocommerce, $dataCreate);
-    //             $productsCreates++;
-    //         }
-    //     }
-    //     echo '<div class="alert alert-success" role="alert">
-    //             ' . $productsCreates . ' Productos Creados Exitosamente
-    //             ' . $productExist . 'Ya existen,
-    //           </div>';
-    // }
-
-    // if (isset($_POST['actualizar'])) {
-    //     $productNotSku = 0;
-
-    //     foreach ($productsBanana as $key => $producto) {
-    //         if ($producto->sku != null) {
-    //             $productWoo = searchProduct($woocommerce, $producto->sku);
-    //             if (count($productWoo) > 0) {
-    //                 $id = $productWoo[0]->id;
-    //                 $dataUpdate = [
-    //                     'name' => $producto->name,
-    //                     'regular_price' => $producto->sale_price,
-    //                     'stock_quantity' => $producto->stock,
-    //                     'description' => $producto->description,
-    //                     'categories' => $category_woo_id,
-    //                     'sku' => $producto->sku
-    //                 ];
-    //                 updateProductsWoo($woocommerce, $id, $dataUpdate);
-    //             }
-    //         } else {
-    //             $productNotSku++;
-    //         }
-    //     }
-    //     echo '<div class="alert alert-warning" role="alert">
-    //             ' . $productNotSku . ' Productos no tienen sku
-    //           </div>';
-    // } elseif (isset($_POST['actualizar']) and isset($_POST['crear'])) {
-    //     echo 'los dos';
-    // }
-
-
-    //    var_dump( searchCategoriesWoo($woocommerce, 'CAMPIoikjiokjuiouijNG'));
 }
 
+
+// if (isset($_POST['sincronizarCategoria'])) {
+
+//     if (validationTokens($datos) == true) {
+
+//         $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
+//         if (isset($_POST['crearCategoria']) or isset($_POST['actualizarCategoria'])) {
+//             foreach ($categories as $key => $category) {
+//                 $crear = false;
+//                 if ($category->parent_id == null) {
+//                     $data = [
+//                         'name' => $category->name
+//                     ];
+
+//                     if (isset($_POST['crearCategoria'])) {
+//                         $crear = true;
+//                         //createCategoryWoo($woocommerce, $data);
+//                         echo 'creando';
+//                         var_dump($data);
+//                     }
+
+//                     if (isset($_POST['actualizarCategoria']) && !$crear) {
+//                         //updateCategoriesWoo($woocommerce, $id, $data);
+//                         echo 'Actiualizo';
+//                         var_dump($data);
+//                     }
+//                 } else {
+
+//                     $path = [];
+//                     $path = explode(' > ', $category->path);
+//                     $num =  count($path);
+//                     $word = $path[$num - 2];
+
+//                     $result_find = searchCategoriesWoo($woocommerce, $word);
+//                     var_dump($result_find);
+//                     if (count($result_find) > 0) {
+//                         $id = $result_find[0]->id;
+//                     }
+
+//                     $data = [
+//                         'name' => $path[$num - 1],
+//                         'parent' =>  $id
+//                     ];
+
+//                     if (isset($_POST['actualizarCategoria'])) {
+//                         //updateCategoriesWoo($woocommerce, $id, $data);
+//                         echo 'actualizando';
+//                     }
+//                     if (isset($_POST['crearCategoria'])) {
+//                         //createCategoryWoo($woocommerce, $data);
+//                         echo 'creando';
+//                     }
+//                 }
+//             }
+//         }
+//     } else {
+//         echo '<div class="alert alert-warning" role="alert">
+//                 Tus datos no están autenticados.
+//                       </div>';
+//     }
+// }
 
 
 ?>
@@ -175,60 +190,64 @@ if (isset($_POST['sincronizar'])) {
                 <tbody id="the-list">
                     <?php
                     $ls = 0;
-                    foreach ($products->products as $product) {
-                        $ls++;
-                        $name = $product->name; //clave de la tabla
-                        $id = $product->id;
-                        $sku = $product->sku;
-                        $category_name = $product->category_name;
-                        $description = $product->description;
-                        $sale_price = $product->sale_price;
-                    ?>
-                        <tr>
-                            <td>
-                                <p><?php echo  esc_html($name); ?></p>
-                                <b class="text-sm-start"><?php echo  esc_html($id) ?></b>
-                            </td>
-                            <td><?php echo  esc_html($sku) ?></td>
-                            <td><?php echo  esc_html($sale_price) ?></td>
-                            <td><?php echo  esc_html($category_name) ?></td>
-                            <td><?php echo  esc_html($description) ?></td>
-                            <td>
-                                <!-- //!REVISAR BOTON DE BORRAR -->
-                                <button name="idProducts" value="<?php echo $id_key ?>" class="btn btn-danger" type="button"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    <?php
-                    }
+                    if (validationTokens($datos) == true) {
+                        foreach ($products->products as $product) {
+                            $ls++;
+                            $name = $product->name; //clave de la tabla
+                            $id = $product->id;
+                            $sku = $product->sku;
+                            $category_name = $product->category_name;
+                            $description = $product->description;
+                            $sale_price = $product->sale_price;
 
+                    ?>
+                            <tr>
+                                <td>
+                                    <p><?php echo  esc_html($name); ?></p>
+                                    <b class="text-sm-start"><?php echo  esc_html($id) ?></b>
+                                </td>
+                                <td><?php echo  esc_html($sku) ?></td>
+                                <td><?php echo  esc_html($sale_price) ?></td>
+                                <td><?php echo  esc_html($category_name) ?></td>
+                                <td><?php echo  esc_html($description) ?></td>
+                                <td>
+                                    <!-- //!REVISAR BOTON DE BORRAR -->
+                                    <button name="idProducts" value="<?php echo $id_key ?>" class="btn btn-danger" type="button"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                    <?php
+                        }
+                    }
                     ?>
                 </tbody>
             </table>
     </div>
     <!-- Listado de categorias -->
     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault1">
-                        <label class="form-check-label" for="flexCheckDefault1">
-                            Crear Producto
-                        </label>
+        <div class="container mb-4">
+            <form method="post">
+                <div class="row">
+                    <div class="col">
+                        <div class="form-check">
+                            <input name="crearCategoria" class=" " type="checkbox" value="crear" id="crearCategoria">
+                            <label class="form-check-label" for="crearCategoria">
+                                Crear Categoría
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col ">
+                        <div class="form-check">
+                            <input name="actualizarCategoria" type="checkbox" value="actualizar" id="actualizarCategoria">
+                            <label class="form-check-label" for="actualizarCategoria">
+                                Actualizar Categoría
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col ">
+                        <button name="sincronizarCategoria" class="btn btn-success" type="submit"><i class="fa-solid fa-arrows-rotate"></i></button>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault2">
-                        <label class="form-check-label" for="flexCheckDefault2">
-                            Actualizar Producto
-                        </label>
-                    </div>
-                </div>
-                <div class="col">
-                    <button name="sincronizar" class="btn btn-success" type="submit"><i class="fa-solid fa-arrows-rotate"></i></button>
-                </div>
-            </div>
+            </form>
         </div>
         <h6 class="mb-3 text-primary">Estas son tus categorías en banana</h5>
             <table class="wp-list-table widefat fixed striped pages">
@@ -239,28 +258,30 @@ if (isset($_POST['sincronizar'])) {
                 </thead>
                 <tbody id="the-list">
                     <?php
-                    $ls = 0;
-                    foreach ($categories as $categoric) {
-                        $ls++;
+                    if (validationTokens($datos) == true) {
+                        $ls = 0;
+                        foreach ($categories as $categoric) {
+                            $ls++;
 
-                        $name = $categoric->name;
-                        $id = $categoric->id;
-                        $padre = $categoric->path;
+                            $name = $categoric->name;
+                            $id = $categoric->id;
+                            $padre = $categoric->path;
+
                     ?>
-                        <tr>
-                            <td>
-                                <p><?php echo  esc_html($name); ?></p>
-                                <b class="text-sm-start"><?php echo  esc_html($id) ?></b>
-                            </td>
-                            <td><?php echo  esc_html($padre) ?></td>
-                            <td>
-                                <!-- //!REVISAR BOTON DE BORRAR -->
-                                <button name="idProducts" value="<?php echo $id_key ?>" class="btn btn-danger" type="button"><i class="fa-solid fa-trash"></i></button>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td>
+                                    <p><?php echo  esc_html($name); ?></p>
+                                    <b class="text-sm-start"><?php echo  esc_html($id) ?></b>
+                                </td>
+                                <td><?php echo  esc_html($padre) ?></td>
+                                <td>
+                                    <!-- //!REVISAR BOTON DE BORRAR -->
+                                    <button name="idProducts" value="<?php echo $id_key ?>" class="btn btn-danger" type="button"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
                     <?php
+                        }
                     }
-
                     ?>
                 </tbody>
             </table>

@@ -7,9 +7,9 @@
  * @param Conexion $woocommerce variable que conecta con la autenticación
  * @return object
  */
-function categoriesWoo($woocommerce)
+function createCategoryWoo($woocommerce, $data)
 {
-    return $woocommerce->get('products/categories');
+    return $woocommerce->get('products/categories', $data);
 }
 //categoriesWoo($woocommerce);
 
@@ -18,6 +18,10 @@ function createProductWoo($woocommerce, $data)
     $woocommerce->post('products', $data);
 }
 
+function updateCategoriesWoo($woocommerce,$id,$data)
+{
+   return  $woocommerce->put("products/$id", $data);
+}
 
 /**
  * Buscar Categorías

@@ -1,9 +1,10 @@
 <?php
 
 // //!NO FORMATEAR
-
-function BootstrapJs(){wp_enqueue_script('bootstrapJs', plugins_url('../admin/bootstrap/js/bootstrap.min.js', __FILE__), array('jquery'));}
-function BootstrapCss(){wp_enqueue_style('BootstrapCss', plugins_url('../admin/bootstrap/css/bootstrap.min.css', __FILE__));}
+//BostrapJs
+function BootstrapJs(){wp_enqueue_script('bootstrapJs','https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js');}
+//BostrapCss
+function BootstrapCss(){wp_enqueue_style('BootstrapCss','https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');}
 function Styles(){wp_enqueue_style('Styles', plugins_url('../admin/bootstrap/styles/index.css', __FILE__));}
 function callScript(){wp_enqueue_script('callScript', plugins_url('../admin/bootstrap/scripts/main.js', __FILE__), array('jquery'));}
 function callFontAwesomeCnd(){wp_enqueue_style('load-fa', 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css');}
