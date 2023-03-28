@@ -54,15 +54,12 @@ function authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlWoo)
 {
     $woocommerce = new Client(
         $urlWoo,
-        $consumer_key_Woo,
         $consumer_secret_Woo,
+        $consumer_key_Woo,
         [
             'wp_api' => true,
             'version' => 'wc/v3',
-            'query_string_auth'=> true,
-            'options' => [
-                'verify_ssl' => false
-            ],
+            'verify_ssl' => false
         ]
     );
 
@@ -103,3 +100,4 @@ function validationTokens($datos)
     }
     return $validation;
 }
+

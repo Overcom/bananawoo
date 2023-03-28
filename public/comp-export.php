@@ -12,9 +12,17 @@ $categories = productosBanana($urlBananaCategories, $tokenBanana);
 $consumer_secret_Woo =  extractToken($datos)['cs'];
 $consumer_key_Woo =  extractToken($datos)['ck'];
 
-$urlHost = "https://" . $_SERVER['HTTP_HOST'];
+function extractUrlpetition()
+{
+    # code...
+}
+
+$urlHost = get_site_url();
+$woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
+
 
 if (isset($_POST['sincronizar'])) {
+    // createPrueba($woocommerce);
     $category_woo_id = [];
     if (validationTokens($datos) == true) {
         if (isset($_POST['actualizar']) or isset($_POST['crear'])) {
@@ -24,30 +32,32 @@ if (isset($_POST['sincronizar'])) {
             $productExist = 0;
             $category_woo_id = [];
             $productNotSku = 0;
-            $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
-            // $productsBanana = $products->products;
+            $sku = null;
+            $pro_create = [];
+            $pro_update = [];
 
+            $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
             foreach ($products->products as $key => $productoBanana) {
                 $actualizado = false;
                 $productWoo = searchProduct($woocommerce, $productoBanana->sku);
 
-                $data = [
-                    'name' => $productoBanana->name,
-                    'regular_price' => $productoBanana->sale_price,
-                    'stock_quantity' => $productoBanana->stock,
-                    'description' => $productoBanana->description,
-                    'categories' => $category_woo_id,
-                    'sku' => $productoBanana->sku
-                ];
-
                 if (count($productWoo) > 0) {
+
+
                     $id = $productWoo[0]->id;
                     $sku = $productWoo[0]->sku;
 
                     if (isset($_POST['actualizar'])) {
                         $actualizado = true;
-                        updateProductsWoo($woocommerce, $id, $data);
-                        $productsUpdates++;
+                        $pro_update[] = [
+                            'id' => $id,
+                            'name' => $productoBanana->name,
+                            'regular_price' => $productoBanana->sale_price,
+                            'stock_quantity' => $productoBanana->stock,
+                            'description' => $productoBanana->description,
+                            'categories' => $category_woo_id,
+                            'sku' => $productoBanana->sku
+                        ];
                     }
                 }
 
@@ -55,15 +65,24 @@ if (isset($_POST['sincronizar'])) {
                     if ($productoBanana->sku == $sku) {
                         $productExist++;
                     } else {
-                        createProductWoo($woocommerce, $data);
-                        $productsCreates++;
+                        $pro_create[] =
+                            [
+                                'name' => $productoBanana->name,
+                                'regular_price' => $productoBanana->sale_price,
+                                'stock_quantity' => $productoBanana->stock,
+                                'description' => $productoBanana->description,
+                                'categories' => $category_woo_id,
+                                'sku' => $productoBanana->sku
+                            ];
                     }
                 }
             }
-            echo '<div class="alert alert-success" role="alert">
-                        ' . $productsCreates . ' Productos Creados Exitosamente
-                        ' . $productExist . ' Ya existen, ' . $productsUpdates . ' en existencia.
-                      </div>';
+            $data = [
+                'create' => $pro_create,
+                'update' => $pro_update
+
+            ];
+            $woocommerce->post('products/batch', $data);
         }
     } else {
         echo '<div class="alert alert-warning" role="alert">
@@ -72,67 +91,70 @@ if (isset($_POST['sincronizar'])) {
     }
 }
 
+if (isset($_POST['sincronizarCategoria'])) {
 
-// if (isset($_POST['sincronizarCategoria'])) {
+    if (validationTokens($datos) == true) {
+        $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
+        if (isset($_POST['crearCategoria']) or isset($_POST['actualizarCategoria'])) {
 
-//     if (validationTokens($datos) == true) {
+            $ca_create = [];
+            $ca_update = [];
 
-//         $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
-//         if (isset($_POST['crearCategoria']) or isset($_POST['actualizarCategoria'])) {
-//             foreach ($categories as $key => $category) {
-//                 $crear = false;
-//                 if ($category->parent_id == null) {
-//                     $data = [
-//                         'name' => $category->name
-//                     ];
 
-//                     if (isset($_POST['crearCategoria'])) {
-//                         $crear = true;
-//                         //createCategoryWoo($woocommerce, $data);
-//                         echo 'creando';
-//                         var_dump($data);
-//                     }
+            foreach ($categories as $key => $category) {
+                $crear = false;
+                if ($category->parent_id == null) {
+                    $data = [
+                        'name' => $category->name
+                    ];
 
-//                     if (isset($_POST['actualizarCategoria']) && !$crear) {
-//                         //updateCategoriesWoo($woocommerce, $id, $data);
-//                         echo 'Actiualizo';
-//                         var_dump($data);
-//                     }
-//                 } else {
+                    if (isset($_POST['crearCategoria'])) {
+                        $crear = true;
+                        //createCategoryWoo($woocommerce, $data);
+                        echo 'creando';
+                        var_dump($data);
+                    }
 
-//                     $path = [];
-//                     $path = explode(' > ', $category->path);
-//                     $num =  count($path);
-//                     $word = $path[$num - 2];
+                    if (isset($_POST['actualizarCategoria']) && !$crear) {
+                        //updateCategoriesWoo($woocommerce, $id, $data);
+                        echo 'Actiualizo';
+                        var_dump($data);
+                    }
+                } else {
 
-//                     $result_find = searchCategoriesWoo($woocommerce, $word);
-//                     var_dump($result_find);
-//                     if (count($result_find) > 0) {
-//                         $id = $result_find[0]->id;
-//                     }
+                    $path = [];
+                    $path = explode(' > ', $category->path);
+                    $num =  count($path);
+                    $word = $path[$num - 2];
 
-//                     $data = [
-//                         'name' => $path[$num - 1],
-//                         'parent' =>  $id
-//                     ];
+                    $result_find = searchCategoriesWoo($woocommerce, $word);
+                    var_dump($result_find);
+                    if (count($result_find) > 0) {
+                        $id = $result_find[0]->id;
+                    }
 
-//                     if (isset($_POST['actualizarCategoria'])) {
-//                         //updateCategoriesWoo($woocommerce, $id, $data);
-//                         echo 'actualizando';
-//                     }
-//                     if (isset($_POST['crearCategoria'])) {
-//                         //createCategoryWoo($woocommerce, $data);
-//                         echo 'creando';
-//                     }
-//                 }
-//             }
-//         }
-//     } else {
-//         echo '<div class="alert alert-warning" role="alert">
-//                 Tus datos no están autenticados.
-//                       </div>';
-//     }
-// }
+                    $data = [
+                        'name' => $path[$num - 1],
+                        'parent' =>  $id
+                    ];
+
+                    if (isset($_POST['actualizarCategoria'])) {
+                        //updateCategoriesWoo($woocommerce, $id, $data);
+                        echo 'actualizando';
+                    }
+                    if (isset($_POST['crearCategoria'])) {
+                        //createCategoryWoo($woocommerce, $data);
+                        echo 'creando';
+                    }
+                }
+            }
+        }
+    } else {
+        echo '<div class="alert alert-warning" role="alert">
+                Tus datos no están autenticados.
+                      </div>';
+    }
+}
 
 
 ?>
