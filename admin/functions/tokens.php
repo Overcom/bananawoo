@@ -52,6 +52,11 @@ function extractToken ($datos)
 
 function authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlWoo)
 {
+    $ssl= true ;
+    if ($_SERVER['REQUEST_SCHEME'] != 'https' ) {
+        $ssl = false;
+    }
+    
     $woocommerce = new Client(
         $urlWoo,
         $consumer_secret_Woo,
@@ -59,7 +64,7 @@ function authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlWoo)
         [
             'wp_api' => true,
             'version' => 'wc/v3',
-            'verify_ssl' => false
+            'verify_ssl' => $ssl
         ]
     );
 

@@ -22,6 +22,7 @@ $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHo
 
 
 if (isset($_POST['sincronizar'])) {
+    // var_dump($woocommerce);
     // createPrueba($woocommerce);
     $category_woo_id = [];
     if (validationTokens($datos) == true) {
@@ -39,16 +40,15 @@ if (isset($_POST['sincronizar'])) {
             $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
             foreach ($products->products as $key => $productoBanana) {
                 $actualizado = false;
-                $productWoo = searchProduct($woocommerce, $productoBanana->sku);
-
-                if (count($productWoo) > 0) {
 
 
-                    $id = $productWoo[0]->id;
-                    $sku = $productWoo[0]->sku;
+                if (isset($_POST['actualizar'])) {
 
-                    if (isset($_POST['actualizar'])) {
+                    $productWoo = searchProduct($woocommerce, $productoBanana->sku);
+                    if (count($productWoo) > 0) {
                         $actualizado = true;
+                        $id = $productWoo[0]->id;
+                        $sku = $productWoo[0]->sku;
                         $pro_update[] = [
                             'id' => $id,
                             'name' => $productoBanana->name,
@@ -92,7 +92,7 @@ if (isset($_POST['sincronizar'])) {
 }
 
 if (isset($_POST['sincronizarCategoria'])) {
-
+    set_time_limit(0);
     if (validationTokens($datos) == true) {
         $woocommerce = authenticationWoo($consumer_key_Woo, $consumer_secret_Woo, $urlHost);
         if (isset($_POST['crearCategoria']) or isset($_POST['actualizarCategoria'])) {
@@ -103,51 +103,59 @@ if (isset($_POST['sincronizarCategoria'])) {
 
             foreach ($categories as $key => $category) {
                 $crear = false;
-                if ($category->parent_id == null) {
-                    $data = [
-                        'name' => $category->name
-                    ];
 
+                $path = [];
+                $path = explode(' > ', $category->path);
+                $num =  count($path);
+                $word = $path[$num - 2];
+                $result_find = searchCategoriesWoo($woocommerce, $word);
+
+                if ($category->parent_id == null) {
                     if (isset($_POST['crearCategoria'])) {
                         $crear = true;
-                        //createCategoryWoo($woocommerce, $data);
-                        echo 'creando';
-                        var_dump($data);
+                        $ca_create  = [
+                            'name' => $category->name
+                        ];
                     }
 
                     if (isset($_POST['actualizarCategoria']) && !$crear) {
-                        //updateCategoriesWoo($woocommerce, $id, $data);
-                        echo 'Actiualizo';
-                        var_dump($data);
+                        if (count($result_find) > 0) {
+                            $id = $result_find[0]->id;
+
+                            $ca_update = [
+                                'id' => $id,
+                                'name' => $category->name
+                            ];
+                        }
                     }
                 } else {
 
-                    $path = [];
-                    $path = explode(' > ', $category->path);
-                    $num =  count($path);
-                    $word = $path[$num - 2];
-
-                    $result_find = searchCategoriesWoo($woocommerce, $word);
-                    var_dump($result_find);
                     if (count($result_find) > 0) {
                         $id = $result_find[0]->id;
                     }
 
-                    $data = [
-                        'name' => $path[$num - 1],
-                        'parent' =>  $id
-                    ];
-
                     if (isset($_POST['actualizarCategoria'])) {
-                        //updateCategoriesWoo($woocommerce, $id, $data);
-                        echo 'actualizando';
+                        $ca_update = [
+                            'name' => $path[$num - 1],
+                            'parent' =>  $id
+                        ];
                     }
                     if (isset($_POST['crearCategoria'])) {
-                        //createCategoryWoo($woocommerce, $data);
-                        echo 'creando';
+                        $ca_create = [
+                            'name' => $path[$num - 1],
+                            'parent' =>  $id
+                        ];
                     }
                 }
             }
+
+            $data = [
+                'create' => $ca_create,
+                'update' => $ca_update
+            ];
+            $woocommerce->post('products/categories/batch', $data);
+
+         //   var_dump($data);
         }
     } else {
         echo '<div class="alert alert-warning" role="alert">
